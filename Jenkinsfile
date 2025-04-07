@@ -36,7 +36,7 @@ pipeline {
             }
     stage('Push the Docker image') {
       steps {
-        sh 'docker push cbabu85/insure-me-app:4.0'
+        sh 'docker push aksh193/banking-app:latest'
                                 }
             }
     stage('Ansbile config and Deployment') {

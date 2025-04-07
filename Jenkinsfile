@@ -24,7 +24,7 @@ pipeline {
             }
     stage('Create a Docker image from the Package Insure-Me.jar file') {
       steps {
-        sh 'docker build -t aksh193/Banking-app:4.0 .'
+        sh 'docker build -t aksh193/banking-app:4.0 .'
                     }
             }
     // stage('Login to Dockerhub') {

@@ -27,23 +27,23 @@ pipeline {
         sh 'docker build -t aksh193/banking-app:latest .'
                     }
             }
-    // stage('Login to Dockerhub') {
-    //   steps {
-    //     withCredentials([usernamePassword(credentialsId: 'dockerlogin', passwordVariable: 'dockerpass', usernameVariable: 'dockeruser')]) {
-    //     sh 'docker login -u ${dockeruser} -p ${dockerpass}'
-    //                                                                 }
-    //                             }
-    //         }
-    // stage('Push the Docker image') {
-    //   steps {
-    //     sh 'docker push cbabu85/insure-me-app:4.0'
-    //                             }
-    //         }
-    // stage('Ansbile config and Deployment') {
-    //   steps {
-    //     ansiblePlaybook credentialsId: 'ansible-ssh', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: 'ansible.yml', vaultTmpPath: ''
-    //                            }
-    //         }
+    stage('Login to Dockerhub') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerlogin', passwordVariable: 'dockerpass', usernameVariable: 'dockeruser')]) {
+        sh 'docker login -u ${dockeruser} -p ${dockerpass}'
+                                                                    }
+                                }
+            }
+    stage('Push the Docker image') {
+      steps {
+        sh 'docker push aksh193/banking-app:'
+                                }
+            }
+    stage('Ansbile config and Deployment') {
+      steps {
+        ansiblePlaybook credentialsId: 'ansible-ssh', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: 'ansible.yml', vaultTmpPath: ''
+                               }
+            }
 
     }
 }

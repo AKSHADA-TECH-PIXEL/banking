@@ -1,50 +1,59 @@
-- name: Configure Docker on EC2 Instances
+- name: Install Docker from Official Repo and Deploy Container
   hosts: all
   become: true
-  connection: ssh
-
   tasks:
-    - name: Update apt cache
+    - name: Remove old Docker and containerd packages
       apt:
-        update_cache: yes
-
-    - name: Remove containerd if it exists (conflicts with containerd.io)
-      apt:
-        name: containerd
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - containerd.io
+          - runc
         state: absent
-      ignore_errors: yes
+      ignore_errors: true
 
-    - name: Remove containerd.io if already partially installed
+    - name: Install dependencies
       apt:
-        name: containerd.io
-        state: absent
-      ignore_errors: yes
-
-    - name: Fix broken install
-      apt:
-        fix_broken: yes
-
-    - name: Autoremove unnecessary packages
-      apt:
-        autoremove: yes
-
-    - name: Clean up apt cache
-      apt:
-        autoclean: yes
-
-    - name: Install Docker
-      apt:
-        name: docker.io
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
         state: present
         update_cache: yes
 
-    - name: Start Docker Service
+    - name: Add Docker’s official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release | lower }} stable"
+        state: present
+
+    - name: Update apt cache after adding Docker repo
+      apt:
+        update_cache: yes
+
+    - name: Install Docker Engine
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Start and enable Docker service
       service:
         name: docker
         state: started
         enabled: true
 
-    - name: Deploy Docker Container
+    - name: Run Docker container
       docker_container:
         name: banking
         image: aksh193/banking:1.0

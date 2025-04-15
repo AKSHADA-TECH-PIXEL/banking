@@ -10,10 +10,9 @@
     state: absent
     ignore_errors: yes
     
-
-  # - name : Install Docker
-  #   command : sudo apt-get install -y docker.iostate: present
-  #   when: docker_version.rc != 0
+  - name : Install Docker
+    command : sudo apt-get install -y docker.iostate: present
+    when: docker_version.rc != 0
     
 
   - name : Start Docker Service

@@ -1,22 +1,47 @@
-- name : Configure Docker on EC2 Instances
-  hosts : all
+- name: Configure Docker on EC2 Instances
+  hosts: all
   become: true
-  connection : ssh
-  tasks : 
-- name: updating apt
-  command : sudo apt-get update- name: Remove conflicting containerd package if present
-  apt:
-    name: containerd
-    state: absent
-    ignore_errors: yes
-    
-  - name : Install Docker
-    command : sudo apt-get install -y docker.iostate: present
-    when: docker_version.rc != 0
-    
+  connection: ssh
 
-  - name : Start Docker Service
-    command : sudo systemctl start docker
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
 
-  - name: Deploy Docker Container
-    command: docker run -itd -p 8084:8081 aksh193/banking:1.0
+    - name: Remove containerd if it exists (conflicts with containerd.io)
+      apt:
+        name: containerd
+        state: absent
+      ignore_errors: yes
+
+    - name: Remove containerd.io if already partially installed
+      apt:
+        name: containerd.io
+        state: absent
+      ignore_errors: yes
+
+    - name: Clean up held or broken packages
+      command: apt-get -f install
+      register: fix_result
+      ignore_errors: true
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Start Docker Service
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Deploy Docker Container
+      docker_container:
+        name: banking
+        image: aksh193/banking:1.0
+        state: started
+        restart_policy: always
+        published_ports:
+          - "8084:8081"

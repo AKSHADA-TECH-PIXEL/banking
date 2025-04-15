@@ -20,10 +20,17 @@
         state: absent
       ignore_errors: yes
 
-    - name: Clean up held or broken packages
-      command: apt-get -f install
-      register: fix_result
-      ignore_errors: true
+    - name: Fix broken install
+      apt:
+        fix_broken: yes
+
+    - name: Autoremove unnecessary packages
+      apt:
+        autoremove: yes
+
+    - name: Clean up apt cache
+      apt:
+        autoclean: yes
 
     - name: Install Docker
       apt:

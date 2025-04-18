@@ -39,6 +39,12 @@ pipeline {
         sh 'docker push aksh193/banking-app:'
                                 }
             }
+    stage('Deploy to Kubernetes') {
+    steps {
+        sh 'kubectl apply -f k8s/service.yaml'
+    }
+
+     
     stage('Ansbile config and Deployment') {
       steps {
         ansiblePlaybook credentialsId: 'ansible-ssh', disableHostKeyChecking: true, installation: 'ansible', inventory: 'var/lib/jenkins/workspace/banking/deploy.yml', playbook: 'ansible.yml', vaultTmpPath: ''
